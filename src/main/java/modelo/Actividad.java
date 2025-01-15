@@ -22,7 +22,10 @@ public class Actividad {
 	private String codigo_vestimenta;
 	private int id_usuario_propietario;
 	private int id_ofertante;
-	
+
+	public Actividad() {
+	}
+
 	public Actividad(int id_actividad, String nombre_actividad, String tipo, String descripcion, Date fecha,
 			Time hora, boolean transporte, String ciudad_partida, String ciudad_actividad, String idioma,
 			boolean mascotas, int capacidad_personas, int personas_actuales, int precio, int edad_recomendada,
@@ -47,14 +50,18 @@ public class Actividad {
 		this.id_usuario_propietario = id_usuario_propietario;
 		this.id_ofertante = id_ofertante;
 	}
-	
+
+	/**
+	 * Devuelve la información de una actividad en un String
+	 * @return
+	 */
 	public String infoActividad() {
 		return id_actividad + "@" + nombre_actividad + "@" + tipo + "@" + descripcion + "@" + fecha + "@" + hora
 				+ "@" + transporte + "@" + ciudad_partida + "@" + ciudad_actividad + "@" + idioma + "@" + mascotas + "@"
 				+ capacidad_personas + "@" + personas_actuales + "@" + precio + "@" + edad_recomendada + "@"
 				+ codigo_vestimenta + "@" + id_usuario_propietario +"@"+id_ofertante;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -66,8 +73,8 @@ public class Actividad {
 		Actividad other = (Actividad) obj;
 		return id_actividad == other.id_actividad;
 	}
-
-	//	Getters y setters
+	
+	//Getters y setters
 	public int getId_actividad() {
 		return id_actividad;
 	}

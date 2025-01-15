@@ -6,29 +6,33 @@ public class Usuario {
 	private int id_usuario;
 	private String nombre_completo;
 	private String nombre_usuario;
+	private String contrasena;
 	private String email;
 	private Date fecha_nacimiento;
+	private String rol;
 
-	public Usuario(String nombre_completo, String nombre_usuario, String email,
-			Date fecha_nacimiento) {
+	//Constructor registro
+	public Usuario(String nombre_completo, String nombre_usuario, String contrasena, String email,
+			Date fecha_nacimiento, String rol) {
 		super();
 		this.nombre_completo = nombre_completo;
 		this.nombre_usuario = nombre_usuario;
+		this.contrasena = contrasena;
 		this.email = email;
 		this.fecha_nacimiento = fecha_nacimiento;
+		this.rol = rol;
+	}
+
+	//Constructor inicio sesión
+	public Usuario(String nombre_usuario, String contrasena, String rol) {
+		super();
+		this.nombre_usuario = nombre_usuario;
+		this.contrasena = contrasena;
+		this.rol = rol;
 	}
 
 	public Usuario() {
 		super();
-	}
-	
-	public void asignarDatos(String datos) {
-		String[] usu = datos.split("/");
-		setId_usuario(Integer.parseInt(usu[0]));
-		setNombre_completo(usu[1]);
-		setNombre_usuario(usu[2]);
-		setEmail(usu[3]);
-		setFecha_nacimiento(Date.valueOf(usu[4]));
 	}
 
 	// Getters y setters
@@ -55,7 +59,15 @@ public class Usuario {
 	public void setNombre_usuario(String nombre_usuario) {
 		this.nombre_usuario = nombre_usuario;
 	}
-	
+
+	public String getContrasena() {
+		return contrasena;
+	}
+
+	public void setContrasena(String contrasena) {
+		this.contrasena = contrasena;
+	}
+
 	public String getEmail() {
 		return email;
 	}
@@ -72,4 +84,11 @@ public class Usuario {
 		this.fecha_nacimiento = fecha_nacimiento;
 	}
 
+	public String getRol() {
+		return rol;
+	}
+
+	public void setRol(String rol) {
+		this.rol = rol;
+	}
 }

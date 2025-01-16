@@ -65,61 +65,85 @@ public class Principal extends Stage {
 	protected Font fuenteAdvertencia;
 
 	public Principal(Conexion c) {
-
+		this.conexion = c;
 		cargarFuentes();
-
 		principal = new BorderPane();
 		principal.setStyle("-fx-background-color: " + BLANCO);
-		conexion = c;
-		actividadesMostrar = conexion.getActividades();
 
+		actividadesMostrar = conexion.getActividades();
 		actividades = mostrarActividades();
 
+		configurarScrollPane();
+		configurarPanelSuperior();
+		configurarPanelIzquierdo();
+
+		Scene scene = new Scene(principal);
+		setScene(scene);
+
+		this.setOnCloseRequest(e -> conexion.cerrarConexion());
+	}
+
+	private void configurarScrollPane() {
 		ScrollPane scrollpane = new ScrollPane(actividades);
 		scrollpane.setFitToWidth(true);
 		scrollpane.setFitToHeight(true);
 		scrollpane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 		scrollpane.setStyle("-fx-background-color: " + BLANCO
 				+ "; -fx-border-color: transparent; -fx-border-width: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
-
 		principal.setCenter(scrollpane);
+	}
 
+	private void configurarPanelSuperior() {
 		BorderPane inicial = new BorderPane();
 		inicial.setPadding(new Insets(10));
 
 		HBox info = new HBox(20);
+		configurarBotonRecargar(info);
+		configurarAdvertencia(info);
 
+		inicial.setLeft(info);
+		icono = crearIconoUsuario();
+		BorderPane acciones = crearAccionesPanel();
+
+		inicial.setRight(icono);
+		principal.setTop(inicial);
+	}
+
+	private void configurarBotonRecargar(HBox info) {
 		Button recargar = new Button("⭮");
 		recargar.setStyle("-fx-background-color: " + ROSA + "; -fx-text-fill: " + NEGRO
 				+ "; -fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 50%; -fx-min-width: 50px; -fx-min-height: 50px;");
-
-		recargar.setOnAction(e -> {
-			conexion.enviarActualizar(conexion.getUsuario().getId_usuario(), conexion.getTipo());
-		});
+		recargar.setOnAction(e -> conexion.enviarActualizar(conexion.getUsuario().getId_usuario(), conexion.getTipo()));
 
 		StackPane centrarRecargar = new StackPane();
 		centrarRecargar.getChildren().add(recargar);
-
 		info.getChildren().add(centrarRecargar);
+	}
+
+	private void configurarAdvertencia(HBox info) {
 		advertencia = new Label("Se ha producido una baja, compruebe sus actividades, pueden haberse cancelado.");
 		advertencia.setFont(fuenteAdvertencia);
 		info.getChildren().add(advertencia);
 		advertencia.setVisible(false);
 		advertencia.setStyle("-fx-text-fill: " + ROSA_OSCURO);
 		principal.setOnMouseClicked(event -> advertencia.setVisible(false));
+	}
 
-		inicial.setLeft(info);
-
-		icono = new Button(conexion.getUsuario().getNombre_usuario());
+	private Button crearIconoUsuario() {
+		Button icono = new Button(conexion.getUsuario().getNombre_usuario());
 		icono.setStyle("-fx-background-color: " + ROSA + "; -fx-text-fill: " + NEGRO
 				+ "; -fx-font-size: 16px; -fx-background-radius: 50%; -fx-min-width: 100px; -fx-min-height: 100px;");
+		return icono;
+	}
+
+	private BorderPane crearAccionesPanel() {
+		BorderPane acciones = new BorderPane();
 
 		Button baja = new Button("Dar de baja");
 		baja.setStyle(estiloBotonFondo());
 		baja.setOnAction(e -> {
 			alertaConfirmacionBaja();
 		});
-
 		Button modificarDatos = new Button("Modificar información");
 		modificarDatos.setStyle(estiloBotonFondo());
 		modificarDatos.setOnAction(e -> {
@@ -132,7 +156,6 @@ public class Principal extends Stage {
 			alertaConfirmacionCerrarSesion();
 		});
 
-		BorderPane acciones = new BorderPane();
 		VBox accion = new VBox(15, baja, modificarDatos);
 		accion.setAlignment(Pos.CENTER);
 		acciones.setTop(accion);
@@ -143,21 +166,39 @@ public class Principal extends Stage {
 		acciones.setBottom(stackPane1);
 
 		acciones.setVisible(false);
-		icono.setOnAction(e -> {
-			if (acciones.isVisible()) {
-				acciones.setVisible(false);
-				principal.setRight(null);
-			} else {
-				acciones.setVisible(true);
-				principal.setRight(acciones);
-			}
-		});
+		icono.setOnAction(e -> mostrarPanelAcciones(acciones));
 
-		inicial.setRight(icono);
+		return acciones;
+	}
 
-		principal.setTop(inicial);
+	private void mostrarPanelAcciones(BorderPane acciones) {
+		if (acciones.isVisible()) {
+			acciones.setVisible(false);
+			principal.setRight(null);
+		} else {
+			acciones.setVisible(true);
+			principal.setRight(acciones);
+		}
+	}
 
+	private void configurarPanelIzquierdo() {
 		BorderPane izquierda = new BorderPane();
+		Button crear = crearBotonNuevo();
+
+		StackPane stackPane = new StackPane();
+		stackPane.getChildren().add(crear);
+		izquierda.setTop(stackPane);
+
+		HBox propios = new HBox(10);
+		configurarBotonesPropios(propios);
+
+		izquierda.setBottom(propios);
+		izquierda.setPadding(new Insets(45, 5, 5, 5));
+
+		principal.setLeft(izquierda);
+	}
+
+	private Button crearBotonNuevo() {
 		Button crear = new Button();
 		crear.setStyle(estiloBotonFondo());
 		if (conexion.getTipo().equalsIgnoreCase("consumidor")) {
@@ -169,14 +210,10 @@ public class Principal extends Stage {
 			Stage actividadStage = new Stage();
 			interfaz.Actividad actividad = new interfaz.Actividad(actividadStage, conexion);
 		});
+		return crear;
+	}
 
-		StackPane stackPane = new StackPane();
-		stackPane.getChildren().add(crear);
-
-		izquierda.setTop(stackPane);
-
-		HBox propios = new HBox(10);
-
+	private void configurarBotonesPropios(HBox propios) {
 		Button verActividadesPropias = new Button();
 		verActividadesPropias.setStyle(estiloBotonFondo());
 		if (conexion.getTipo().equalsIgnoreCase("consumidor")) {
@@ -200,37 +237,18 @@ public class Principal extends Stage {
 		inscripciones.setOnAction(e -> {
 			conexion.enviarVerInscripciones(conexion.getUsuario().getId_usuario(), conexion.getTipo());
 		});
-
 		propios.getChildren().addAll(verActividadesPropias, inscripciones);
-		izquierda.setBottom(propios);
-		izquierda.setPadding(new Insets(45, 5, 5, 5));
-
-		principal.setLeft(izquierda);
-
-		Scene scene = new Scene(principal);
-		setScene(scene);
-
-		this.setOnCloseRequest(event -> {
-			conexion.cerrarConexion();
-		});
 	}
 
 	private GridPane crearPanelActividad(modelo.Actividad actividad) {
-		boolean inscrito = false;
-		if (conexion.getInscripciones() != null) {
-			for (modelo.Actividad a : conexion.getInscripciones()) {
-				if (a.equals(actividad)) {
-					inscrito = true;
-					break;
-				}
-			}
-		}
+		boolean inscrito = isInscrito(actividad);
 
 		GridPane panelActividad = new GridPane();
 		panelActividad.setHgap(5);
 		panelActividad.setVgap(5);
 		panelActividad.setPadding(new Insets(20, 20, 20, 20));
 		panelActividad.setStyle("-fx-background-color: " + GRIS);
+
 		Label titulo = new Label();
 		titulo.setFont(fuenteTexto2);
 
@@ -239,7 +257,6 @@ public class Principal extends Stage {
 		} else {
 			titulo.setText(actividad.getNombre_actividad());
 		}
-
 		panelActividad.add(titulo, 0, 0);
 
 		Label descripcion = new Label(actividad.getDescripcion());
@@ -248,27 +265,7 @@ public class Principal extends Stage {
 
 		Label asignado = new Label();
 		asignado.setFont(fuenteTexto2);
-
-		switch (actividad.getTipo()) {
-		case "anuncio":
-			if (actividad.getId_ofertante() == -1) {
-				asignado.setText("Sin asignar");
-				asignado.setStyle("-fx-text-fill:  " + ROJO + ";");
-			} else {
-				asignado.setText("Asignado");
-				asignado.setStyle("-fx-text-fill:  " + VERDE + ";");
-			}
-			break;
-		case "actividad":
-			if (actividad.getCapacidad_personas() > actividad.getPersonas_actuales()) {
-				asignado.setText("Sin completar");
-				asignado.setStyle("-fx-text-fill:  " + ROJO + ";");
-			} else {
-				asignado.setText("Completa");
-				asignado.setStyle("-fx-text-fill:  " + VERDE + ";");
-			}
-			break;
-		}
+		textAsignado(actividad, asignado);
 		panelActividad.add(asignado, 1, 0);
 
 		Label precio = new Label();
@@ -317,41 +314,13 @@ public class Principal extends Stage {
 			capacidadActual.setText(actividad.getPersonas_actuales() + "/" + actividad.getCapacidad_personas()
 					+ (actividad.getCapacidad_personas() == 1 ? " persona" : " personas"));
 		}
-
 		panelActividad.add(capacidadActual, 2, 3);
 		GridPane.setHalignment(capacidadActual, HPos.RIGHT);
 
-		String edad = "Edad recomendada: " + actividad.getEdad_recomendada()
-				+ (actividad.getEdad_recomendada() == 1 ? " año" : " años"),
-				ropa = "Código vestimenta: " + actividad.getCodigo_vestimenta(),
-				mascotas = actividad.isMascotas() ? "Mascotas permitidas" : "Mascotas no permitidas";
-
-		ComboBox<String> infoAdicional = new ComboBox<String>();
-		infoAdicional.getItems().addAll(edad, ropa, mascotas);
-		infoAdicional.setStyle(estiloComboBox());
-		infoAdicional.setValue("Información adicional");
-		infoAdicional.setEditable(false);
-
-		infoAdicional.setCellFactory(lv -> new ListCell<String>() {
-			@Override
-			protected void updateItem(String item, boolean empty) {
-				super.updateItem(item, empty);
-				if (item != null) {
-					setText(item);
-					setFont(fuenteTexto2);
-					setDisable(true);
-				}
-			}
-		});
-
-		infoAdicional.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			if (newValue == null || !newValue.equals("Información adicional")) {
-				infoAdicional.setValue("Información adicional");
-			}
-		});
-
+		ComboBox<String> infoAdicional = crearInfoAdicional(actividad);
 		panelActividad.add(infoAdicional, 0, 6);
 
+		//Botones 
 		if (actividad.getId_usuario_propietario() == conexion.getUsuario().getId_usuario()) {
 			HBox funciones = new HBox(10);
 
@@ -447,6 +416,11 @@ public class Principal extends Stage {
 		return panelActividad;
 	}
 
+	/**
+	 * Crea la barra de búsqueda
+	 * 
+	 * @return
+	 */
 	private HBox crearBarraBusqueda() {
 		ComboBox<String> filtro = new ComboBox<String>();
 		filtro.setStyle(estiloComboBox());
@@ -496,6 +470,12 @@ public class Principal extends Stage {
 		return new HBox(10, filtro, busqueda, buscar);
 	}
 
+	/**
+	 * Filtra la actividad segun el filtro seleccionado
+	 * 
+	 * @param a
+	 * @return
+	 */
 	private boolean filtrarActividad(modelo.Actividad a) {
 		switch (filtroActividad) {
 		case "Fecha":
@@ -580,6 +560,11 @@ public class Principal extends Stage {
 		}
 	}
 
+	/**
+	 * Muestra las actividades filtradas y sin filtrar
+	 * 
+	 * @return
+	 */
 	public VBox mostrarActividades() {
 		actividades = new VBox(15);
 		actividades.setMaxWidth(Double.MAX_VALUE);
@@ -610,7 +595,7 @@ public class Principal extends Stage {
 					añadirActividad(a);
 				}
 			}
-			
+
 			setFiltroActividad("");
 			setBusquedaActividad("");
 		} else {
@@ -623,15 +608,82 @@ public class Principal extends Stage {
 		}
 		return actividades;
 	}
-	
+
 	private void añadirActividad(modelo.Actividad a) {
 		GridPane act = crearPanelActividad(a);
 		act.setMaxWidth(Double.MAX_VALUE);
 		GridPane.setHgrow(act, Priority.ALWAYS);
 		GridPane.setVgrow(act, Priority.ALWAYS);
-		act.setStyle("-fx-border-color: " + ROSA
-				+ "; -fx-border-width: 1; -fx-padding: 10; -fx-border-radius: 15px;");
+		act.setStyle("-fx-border-color: " + ROSA + "; -fx-border-width: 1; -fx-padding: 10; -fx-border-radius: 15px;");
 		actividades.getChildren().add(act);
+	}
+
+	// Útiles
+
+	private ComboBox<String> crearInfoAdicional(modelo.Actividad actividad) {
+		String edad = "Edad recomendada: " + actividad.getEdad_recomendada()
+				+ (actividad.getEdad_recomendada() == 1 ? " año" : " años"),
+				ropa = "Código vestimenta: " + actividad.getCodigo_vestimenta(),
+				mascotas = actividad.isMascotas() ? "Mascotas permitidas" : "Mascotas no permitidas";
+
+		ComboBox<String> infoAdicional = new ComboBox<String>();
+		infoAdicional.getItems().addAll(edad, ropa, mascotas);
+		infoAdicional.setStyle(estiloComboBox());
+		infoAdicional.setValue("Información adicional");
+		infoAdicional.setEditable(false);
+
+		infoAdicional.setCellFactory(lv -> new ListCell<String>() {
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item != null) {
+					setText(item);
+					setFont(fuenteTexto2);
+					setDisable(true);
+				}
+			}
+		});
+
+		infoAdicional.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue == null || !newValue.equals("Información adicional")) {
+				infoAdicional.setValue("Información adicional");
+			}
+		});
+		return infoAdicional;
+	}
+
+	private void textAsignado(modelo.Actividad actividad, Label asignado) {
+		switch (actividad.getTipo()) {
+		case "anuncio":
+			if (actividad.getId_ofertante() == -1) {
+				asignado.setText("Sin asignar");
+				asignado.setStyle("-fx-text-fill:  " + ROJO + ";");
+			} else {
+				asignado.setText("Asignado");
+				asignado.setStyle("-fx-text-fill:  " + VERDE + ";");
+			}
+			break;
+		case "actividad":
+			if (actividad.getCapacidad_personas() > actividad.getPersonas_actuales()) {
+				asignado.setText("Sin completar");
+				asignado.setStyle("-fx-text-fill:  " + ROJO + ";");
+			} else {
+				asignado.setText("Completa");
+				asignado.setStyle("-fx-text-fill:  " + VERDE + ";");
+			}
+			break;
+		}
+	}
+
+	private boolean isInscrito(modelo.Actividad actividad) {
+		if (conexion.getInscripciones() != null) {
+			for (modelo.Actividad a : conexion.getInscripciones()) {
+				if (a.equals(actividad)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private String estiloCampoTexto() {
@@ -676,7 +728,8 @@ public class Principal extends Stage {
 	}
 
 	private void alertaConfirmacion(modelo.Actividad actividad) {
-		Alert alert = crearAlerta("Confirmación", "¿Estás seguro de que deseas cancelar la actividad?", "Se perderán toda la información.");
+		Alert alert = crearAlerta("Confirmación", "¿Estás seguro de que deseas cancelar la actividad?",
+				"Se perderán toda la información.");
 
 		alert.showAndWait().ifPresent(response -> {
 			if (response == ButtonType.OK) {
@@ -686,7 +739,8 @@ public class Principal extends Stage {
 	}
 
 	private void alertaConfirmacionBaja() {
-		Alert alert = crearAlerta("Dar de baja", "¿Estás seguro de que deseas dar de baja?", "Esta acción no puede deshacerse.");
+		Alert alert = crearAlerta("Dar de baja", "¿Estás seguro de que deseas dar de baja?",
+				"Esta acción no puede deshacerse.");
 		alert.showAndWait().ifPresent(response -> {
 			if (response == ButtonType.OK) {
 				conexion.enviarBaja();
@@ -697,7 +751,8 @@ public class Principal extends Stage {
 	}
 
 	private void alertaConfirmacionCerrarSesion() {
-		Alert alert = crearAlerta("Cerrar sesión", "¿Estás seguro de que deseas cerrar sesión?", "Esta acción no puede deshacerse.");
+		Alert alert = crearAlerta("Cerrar sesión", "¿Estás seguro de que deseas cerrar sesión?",
+				"Esta acción no puede deshacerse.");
 		alert.showAndWait().ifPresent(response -> {
 			if (response == ButtonType.OK) {
 				conexion.enviarCerrarSesion();
@@ -705,7 +760,7 @@ public class Principal extends Stage {
 			}
 		});
 	}
-	
+
 	private Alert crearAlerta(String titulo, String header, String content) {
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.setTitle(titulo);
@@ -727,7 +782,7 @@ public class Principal extends Stage {
 
 		alert.getDialogPane().lookupButton(buttonAceptar).setAccessibleText("Aceptar");
 		alert.getDialogPane().lookupButton(buttonCancelar).setAccessibleText("Cancelar");
-		
+
 		return alert;
 	}
 

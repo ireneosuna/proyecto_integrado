@@ -220,8 +220,10 @@ public class Conexion extends Thread {
 				case "modificarDatosUsuario":
 					if (!datos[1].equals("error")) {
 						procesarModificarInformacionUsuario(datos[1]);
-					}else {
-						ventana.alerta("La actualización no se ha realizado, contraseña no válida.", "Error");;
+					} else {
+						Platform.runLater(() -> {
+							ventana.alerta("Contraseña no válida.", "Error");
+						});
 					}
 					break;
 				case "actividadesPropias":
@@ -291,13 +293,13 @@ public class Conexion extends Thread {
 	private synchronized void procesarBaja() {
 		Platform.runLater(() -> {
 			ventana.getAdvertencia().setVisible(true);
-			if(ventana.getVentana().equals("propias")) {
+			if (ventana.getVentana().equals("propias")) {
 				this.enviarVerActividadesPropias(this.getUsuario().getId_usuario());
 			}
-			if(ventana.getVentana().equals("noPropias")) {
+			if (ventana.getVentana().equals("noPropias")) {
 				this.enviarActualizar(this.getUsuario().getId_usuario(), this.getTipo());
 			}
-			if(ventana.getVentana().equals("inscripciones")) {
+			if (ventana.getVentana().equals("inscripciones")) {
 				this.enviarVerInscripciones(this.getUsuario().getId_usuario(), this.getTipo());
 			}
 		});
@@ -323,7 +325,8 @@ public class Conexion extends Thread {
 		procesarActividades(datos, "sin_inscripciones", "inscripciones", inscripciones);
 	}
 
-	private synchronized void procesarActividades(String datos, String comprobante, String tipoVista, ArrayList<Actividad> a) {
+	private synchronized void procesarActividades(String datos, String comprobante, String tipoVista,
+			ArrayList<Actividad> a) {
 		ArrayList<Actividad> actividades = procesarActividades(datos, comprobante);
 		Platform.runLater(() -> {
 			ventana.setVentana(tipoVista);
@@ -344,21 +347,21 @@ public class Conexion extends Thread {
 
 		if (this.getUsuario().getId_usuario() == a.getId_usuario_propietario()) {
 
-			actualizarLista(actividadesPropias, a);		
+			actualizarLista(actividadesPropias, a);
 			ventana.setActividadesMostrar(actividadesPropias);
 			Platform.runLater(() -> {
 				actualizarVentana();
 			});
 
 		} else {
-			
+
 			actualizarLista(actividades, a);
 			actualizarLista(inscripciones, a);
 
 			if (ventana.getVentana().equals("inscripciones")) {
 				if (ventana.getActividadesMostrar().isEmpty()) {
 					actualizar = false;
-				} else {	
+				} else {
 					for (Actividad act : ventana.getActividadesMostrar()) {
 						if (a.equals(act)) {
 							actualizar = true;
@@ -410,7 +413,7 @@ public class Conexion extends Thread {
 			for (int i = 0; i < actividades.size(); i++) {
 				Actividad act = actividades.get(i);
 				if (act.getId_actividad() == a.getId_actividad()) {
-					actividades.remove(act); 
+					actividades.remove(act);
 					if (ventana.getVentana().equals("noPropias")) {
 						actualizar = true;
 					}
@@ -421,7 +424,7 @@ public class Conexion extends Thread {
 			for (int i = 0; i < inscripciones.size(); i++) {
 				Actividad act = inscripciones.get(i);
 				if (act.getId_actividad() == a.getId_actividad()) {
-					inscripciones.remove(act); 
+					inscripciones.remove(act);
 					if (ventana.getVentana().equals("inscripciones")) {
 						actualizar = true;
 					}
@@ -478,7 +481,7 @@ public class Conexion extends Thread {
 			}
 
 		} else {
-			actualizar = actualizarLista(ventana.getActividadesMostrar(),a);
+			actualizar = actualizarLista(ventana.getActividadesMostrar(), a);
 		}
 
 		if (actualizar) {

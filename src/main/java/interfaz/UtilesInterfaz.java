@@ -16,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -28,9 +29,6 @@ public class UtilesInterfaz extends Application {
 	protected static final String ROSA_OSCURO = "#f263d3";
 	protected static final String GRIS_OSCURO = "#c6c7c9";
 	protected static final String GRIS_CLARO = "#fcfcfc";
-
-	protected static final String FONT_ROBOTO_REGULAR = "/fuentes/Roboto-Regular.ttf";
-	protected static final String FONT_ROBOTO_BOLD = "/fuentes/Roboto-Bold.ttf";
 
 	protected Font fuenteTitulo;
 	protected Font fuenteSegundoTitulo;
@@ -55,9 +53,9 @@ public class UtilesInterfaz extends Application {
 	}
 
 	protected void cargarFuentes() {
-		fuenteTitulo = Font.loadFont(getClass().getResourceAsStream(FONT_ROBOTO_BOLD), 62);
-		fuenteSegundoTitulo = Font.loadFont(getClass().getResourceAsStream(FONT_ROBOTO_BOLD), 42);
-		fuenteTexto = Font.loadFont(getClass().getResourceAsStream(FONT_ROBOTO_REGULAR), 18);
+		fuenteTitulo = Font.font("Arial", FontWeight.BOLD, 62);
+		fuenteSegundoTitulo = Font.font("Arial", FontWeight.BOLD, 42);
+		fuenteTexto = Font.font("Arial", 18);
 	}
 
 	protected void alerta(String mensaje, String titulo) {

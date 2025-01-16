@@ -80,10 +80,10 @@ public class Registro extends UtilesInterfaz {
 	}
 
 	protected Button crearBotonVolver(Stage primaryStage) {
-		Button botonVolverInicio = new Button("⫷");
-
-		botonVolverInicio.setStyle("-fx-background-color: transparent; -fx-text-fill: " + ROSA
-				+ "; -fx-border-color: transparent; -fx-font-size: 30px;");
+		Button botonVolverInicio = new Button("◀");
+		botonVolverInicio.setPrefWidth(0);
+		botonVolverInicio.setStyle("-fx-background-color: transparent; -fx-text-fill: " + NEGRO
+				+ "; -fx-border-color: transparent; -fx-font-size: 20px;");
 
 		botonVolverInicio.setOnAction(e -> {
 			Inicio inicio = new Inicio();

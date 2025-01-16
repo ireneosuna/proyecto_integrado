@@ -32,6 +32,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class Principal extends Stage {
@@ -56,9 +57,6 @@ public class Principal extends Stage {
 	protected static final String GRIS_CLARO = "#fcfcfc";
 	protected static final String VERDE = "#7ed957";
 	protected static final String ROJO = "#ff3131";
-
-	protected static final String FONT_ROBOTO_REGULAR = "/fuentes/Roboto-Regular.ttf";
-	protected static final String FONT_ROBOTO_BOLD = "/fuentes/Roboto-Bold.ttf";
 
 	protected Font fuenteTitulo;
 	protected Font fuenteSegundoTitulo;
@@ -652,11 +650,11 @@ public class Principal extends Stage {
 	}
 
 	private void cargarFuentes() {
-		fuenteTitulo = Font.loadFont(getClass().getResourceAsStream(FONT_ROBOTO_BOLD), 62);
-		fuenteSegundoTitulo = Font.loadFont(getClass().getResourceAsStream(FONT_ROBOTO_BOLD), 42);
-		fuenteTexto = Font.loadFont(getClass().getResourceAsStream(FONT_ROBOTO_REGULAR), 18);
-		fuenteTexto2 = Font.loadFont(getClass().getResourceAsStream(FONT_ROBOTO_REGULAR), 15);
-		fuenteAdvertencia = Font.loadFont(getClass().getResourceAsStream(FONT_ROBOTO_REGULAR), 12);
+		fuenteTitulo = Font.font("Arial", FontWeight.BOLD, 62);
+		fuenteSegundoTitulo = Font.font("Arial", FontWeight.BOLD, 42);
+		fuenteTexto = Font.font("Arial", 18);
+		fuenteTexto2 = Font.font("Arial", 15);
+		fuenteAdvertencia = Font.font("Arial", 12);
 	}
 
 	public void alerta(String mensaje, String titulo) {
